@@ -1,6 +1,7 @@
 
 package de.elytrafinder.client.gui;
 
+import de.elytrafinder.client.ElytraFinderLanguage;
 import de.elytrafinder.client.storage.SeedStorage;
 import de.elytrafinder.client.storage.ElytraStatusStorage.Status;
 
@@ -39,7 +40,7 @@ public class ElytraFinderScreen extends Screen {
     private EditBox seedField;
     private EditBox seedNameField;
 
-    private String statusMessage = "Seed eingeben.";
+    private String statusMessage = ElytraFinderLanguage.text("status.initial");
 
     private List<EndCityFinder.Result> results = List.of();
 
@@ -51,12 +52,35 @@ public class ElytraFinderScreen extends Screen {
 
     private boolean autoSearchStarted = false;
 
+    private final String initialSeed;
+    private final String initialSeedName;
+    private final boolean languageReopen;
+
     public ElytraFinderScreen(
             EndCitySearchService searchService
+    ) {
+        this(searchService, null, null, false);
+    }
+
+    private ElytraFinderScreen(
+            EndCitySearchService searchService,
+            String initialSeed,
+            String initialSeedName,
+            boolean languageReopen
     ) {
         super(Component.literal("ElytraFinder"));
 
         this.searchService = searchService;
+        this.initialSeed = initialSeed;
+        this.initialSeedName = initialSeedName;
+        this.languageReopen = languageReopen;
+
+        if (languageReopen) {
+            this.autoSearchStarted = true;
+            this.results = ElytraFinderHud.getResults();
+            this.elytraStatuses = ElytraFinderHud.getStatuses();
+            this.statusMessage = ElytraFinderLanguage.text("status.language_changed");
+        }
     }
 
     @Override
@@ -80,17 +104,19 @@ public class ElytraFinderScreen extends Screen {
                 panelY + 53,
                 innerWidth,
                 16,
-                Component.literal("Welt-Seed")
+                Component.literal(ElytraFinderLanguage.text("label.world_seed"))
         );
 
         seedField.setMaxLength(20);
         seedField.setHint(
-                Component.literal("Welt-Seed")
+                Component.literal(ElytraFinderLanguage.text("label.world_seed"))
         );
 
         String lastSeed = SeedStorage.getLastSeed();
 
-        if (!lastSeed.isBlank()) {
+        if (languageReopen && initialSeed != null) {
+            seedField.setValue(initialSeed);
+        } else if (!lastSeed.isBlank()) {
             seedField.setValue(lastSeed);
         }
 
@@ -103,12 +129,16 @@ public class ElytraFinderScreen extends Screen {
                 panelY + 82,
                 innerWidth,
                 16,
-                Component.literal("Seed-Name")
+                Component.literal(ElytraFinderLanguage.text("label.seed_name"))
         );
+
+        if (languageReopen && initialSeedName != null) {
+            seedNameField.setValue(initialSeedName);
+        }
 
         seedNameField.setMaxLength(32);
         seedNameField.setHint(
-                Component.literal("Name der Welt")
+                Component.literal(ElytraFinderLanguage.text("hint.world_name"))
         );
 
         this.addRenderableWidget(seedNameField);
@@ -132,7 +162,7 @@ public class ElytraFinderScreen extends Screen {
         // Suchen
         this.addRenderableWidget(
                 Button.builder(
-                        Component.literal("Suchen"),
+                        Component.literal(ElytraFinderLanguage.text("button.search")),
                         button -> startSearch()
                 ).bounds(
                         innerX,
@@ -145,7 +175,7 @@ public class ElytraFinderScreen extends Screen {
         // Seed speichern
         this.addRenderableWidget(
                 Button.builder(
-                        Component.literal("Speichern"),
+                        Component.literal(ElytraFinderLanguage.text("button.save")),
                         button -> saveCurrentSeed()
                 ).bounds(
                         innerX + searchWidth + gap,
@@ -158,7 +188,7 @@ public class ElytraFinderScreen extends Screen {
         // Meine Seeds
         this.addRenderableWidget(
                 Button.builder(
-                        Component.literal("Seeds"),
+                        Component.literal(ElytraFinderLanguage.text("button.seeds")),
                         button -> Minecraft.getInstance().gui.setScreen(
                                 new SavedSeedsScreen(this)
                         )
@@ -175,8 +205,8 @@ public class ElytraFinderScreen extends Screen {
                 Button.builder(
                         Component.literal(
                                 ElytraFinderHud.isEnabled()
-                                        ? "HUD: AN"
-                                        : "HUD: AUS"
+                                        ? ElytraFinderLanguage.text("button.hud_on")
+                                        : ElytraFinderLanguage.text("button.hud_off")
                         ),
                         button -> {
 
@@ -185,15 +215,15 @@ public class ElytraFinderScreen extends Screen {
                             button.setMessage(
                                     Component.literal(
                                             ElytraFinderHud.isEnabled()
-                                                    ? "HUD: AN"
-                                                    : "HUD: AUS"
+                                                    ? ElytraFinderLanguage.text("button.hud_on")
+                                                    : ElytraFinderLanguage.text("button.hud_off")
                                     )
                             );
 
                             statusMessage =
                                     ElytraFinderHud.isEnabled()
-                                            ? "HUD-Overlay aktiviert."
-                                            : "HUD-Overlay deaktiviert.";
+                                            ? ElytraFinderLanguage.text("status.hud_enabled")
+                                            : ElytraFinderLanguage.text("status.hud_disabled");
                         }
                 ).bounds(
                         innerX +
@@ -206,6 +236,32 @@ public class ElytraFinderScreen extends Screen {
                         buttonY,
                         overlayWidth,
                         18
+                ).build()
+        );
+
+        // Language selector: the button shows the language to switch to.
+        this.addRenderableWidget(
+                Button.builder(
+                        Component.literal(ElytraFinderLanguage.switchLabel()),
+                        button -> {
+                            String currentSeed = seedField.getValue();
+                            String currentSeedName = seedNameField.getValue();
+                            ElytraFinderLanguage.toggle();
+                            ElytraFinderHud.onLanguageChanged();
+                            Minecraft.getInstance().gui.setScreen(
+                                    new ElytraFinderScreen(
+                                            searchService,
+                                            currentSeed,
+                                            currentSeedName,
+                                            true
+                                    )
+                            );
+                        }
+                ).bounds(
+                        panelX + panelWidth - 48,
+                        panelY + 4,
+                        36,
+                        15
                 ).build()
         );
 
@@ -293,12 +349,12 @@ public class ElytraFinderScreen extends Screen {
         String name = seedNameField.getValue().trim();
 
         if (input.isEmpty()) {
-            statusMessage = "Seed eingeben!";
+            statusMessage = ElytraFinderLanguage.text("status.seed_required");
             return;
         }
 
         if (name.isEmpty()) {
-            statusMessage = "Namen eingeben!";
+            statusMessage = ElytraFinderLanguage.text("status.name_required");
             return;
         }
 
@@ -308,17 +364,17 @@ public class ElytraFinderScreen extends Screen {
 
             SeedStorage.saveSeed(name, seed);
 
-            statusMessage = "Seed gespeichert!";
+            statusMessage = ElytraFinderLanguage.text("status.seed_saved");
 
             seedNameField.setValue("");
 
         } catch (NumberFormatException exception) {
 
-            statusMessage = "Ungültiger Seed.";
+            statusMessage = ElytraFinderLanguage.text("status.invalid_seed");
 
         } catch (IOException exception) {
 
-            statusMessage = "Speichern fehlgeschlagen.";
+            statusMessage = ElytraFinderLanguage.text("status.save_failed");
 
             exception.printStackTrace();
         }
@@ -342,7 +398,7 @@ public class ElytraFinderScreen extends Screen {
             results = List.of();
             elytraStatuses = List.of();
 
-            statusMessage = "Seed geladen.";
+            statusMessage = ElytraFinderLanguage.text("status.seed_loaded");
 
             startSearch();
 
@@ -350,7 +406,7 @@ public class ElytraFinderScreen extends Screen {
 
         } catch (IOException exception) {
 
-            statusMessage = "Seed konnte nicht geladen werden.";
+            statusMessage = ElytraFinderLanguage.text("status.seed_load_failed");
 
             exception.printStackTrace();
         }
@@ -369,7 +425,7 @@ public class ElytraFinderScreen extends Screen {
 
         if (input.isEmpty()) {
 
-            statusMessage = "Seed eingeben!";
+            statusMessage = ElytraFinderLanguage.text("status.seed_required");
 
             results = List.of();
             elytraStatuses = List.of();
@@ -387,7 +443,7 @@ public class ElytraFinderScreen extends Screen {
 
         } catch (NumberFormatException exception) {
 
-            statusMessage = "Ungültiger Seed.";
+            statusMessage = ElytraFinderLanguage.text("status.invalid_seed");
 
             results = List.of();
             elytraStatuses = List.of();
@@ -402,7 +458,7 @@ public class ElytraFinderScreen extends Screen {
         if (minecraft.player == null ||
                 minecraft.level == null) {
 
-            statusMessage = "Keine Spielerposition.";
+            statusMessage = ElytraFinderLanguage.text("status.no_player");
 
             return;
         }
@@ -411,7 +467,7 @@ public class ElytraFinderScreen extends Screen {
         // damit die X/Z-Koordinaten vergleichbar sind.
         if (!minecraft.level.dimension().equals(Level.END)) {
 
-            statusMessage = "Bitte zuerst ins End wechseln.";
+            statusMessage = ElytraFinderLanguage.text("status.enter_end");
 
             return;
         }
@@ -440,7 +496,7 @@ public class ElytraFinderScreen extends Screen {
 
         updateTeleportButtons();
 
-        statusMessage = "Suche läuft ...";
+        statusMessage = ElytraFinderLanguage.text("status.searching");
 
         // Overlay über den Suchstart informieren.
         ElytraFinderHud.beginSearch(seed);
@@ -467,11 +523,11 @@ public class ElytraFinderScreen extends Screen {
                     if (cause instanceof
                             EndCitySearchService.SearchAlreadyRunningException) {
 
-                        statusMessage = "Suche läuft bereits.";
+                        statusMessage = ElytraFinderLanguage.text("status.search_already");
 
                     } else {
 
-                        statusMessage = "Suchfehler! Siehe Log.";
+                        statusMessage = ElytraFinderLanguage.text("status.search_error");
 
                         cause.printStackTrace();
                     }
@@ -496,8 +552,8 @@ public class ElytraFinderScreen extends Screen {
                 elytraStatuses = ElytraFinderHud.getStatuses();
 
                 statusMessage = foundResults.isEmpty()
-                        ? "Keine Endschiffe gefunden."
-                        : foundResults.size() + " Endschiffe erfasst; die fünf nächsten werden angezeigt.";
+                        ? ElytraFinderLanguage.text("status.no_results")
+                        : ElytraFinderLanguage.text("status.results", foundResults.size());
 
                 updateTeleportButtons();
             });
@@ -559,7 +615,7 @@ public class ElytraFinderScreen extends Screen {
 
         if (server == null || minecraft.player == null) {
 
-            statusMessage = "Nur im Singleplayer möglich.";
+            statusMessage = ElytraFinderLanguage.text("status.singleplayer_only");
 
             updateTeleportButtons();
 
@@ -572,7 +628,7 @@ public class ElytraFinderScreen extends Screen {
         UUID playerId =
                 minecraft.player.getUUID();
 
-        statusMessage = "Teleport läuft ...";
+        statusMessage = ElytraFinderLanguage.text("status.teleporting");
 
         server.execute(() -> {
 
@@ -585,7 +641,7 @@ public class ElytraFinderScreen extends Screen {
             if (serverPlayer == null || endLevel == null) {
 
                 minecraft.execute(() ->
-                        statusMessage = "Teleport fehlgeschlagen."
+                        statusMessage = ElytraFinderLanguage.text("status.teleport_failed")
                 );
 
                 return;
@@ -605,8 +661,8 @@ public class ElytraFinderScreen extends Screen {
 
             minecraft.execute(() -> statusMessage =
                     successful
-                            ? "Teleport erfolgreich!"
-                            : "Teleport fehlgeschlagen."
+                            ? ElytraFinderLanguage.text("status.teleport_success")
+                            : ElytraFinderLanguage.text("status.teleport_failed")
             );
         });
     }
@@ -624,9 +680,9 @@ public class ElytraFinderScreen extends Screen {
 
             case ELYTRA_PRESENT -> "ELYTRA";
 
-            case FRAME_WITHOUT_ELYTRA -> "LEER";
+            case FRAME_WITHOUT_ELYTRA -> ElytraFinderLanguage.text("hud.empty");
 
-            case FRAME_REMOVED -> "RAHMEN WEG";
+            case FRAME_REMOVED -> ElytraFinderLanguage.text("hud.frame_removed");
 
             case UNKNOWN -> "?";
         };
@@ -716,7 +772,7 @@ public class ElytraFinderScreen extends Screen {
         // Untertitel
         drawCentered(
                 graphics,
-                "End City Search",
+                ElytraFinderLanguage.text("screen.subtitle"),
                 panelY + 20,
                 0xFF00C9B7
         );
@@ -724,7 +780,7 @@ public class ElytraFinderScreen extends Screen {
         // Beschreibung
         graphics.text(
                 this.font,
-                "Endschiffe anhand deines Seeds finden.",
+                ElytraFinderLanguage.text("screen.description"),
                 innerX,
                 panelY + 33,
                 0xFFB7C5D6,
@@ -734,7 +790,7 @@ public class ElytraFinderScreen extends Screen {
         // Seed-Beschriftung
         graphics.text(
                 this.font,
-                "WELT-SEED",
+                ElytraFinderLanguage.text("screen.world_seed"),
                 innerX,
                 panelY + 44,
                 0xFFFFFFFF,
@@ -744,7 +800,7 @@ public class ElytraFinderScreen extends Screen {
         // Name-Beschriftung
         graphics.text(
                 this.font,
-                "SEED-NAME",
+                ElytraFinderLanguage.text("screen.seed_name"),
                 innerX,
                 panelY + 73,
                 0xFFFFFFFF,
@@ -766,7 +822,7 @@ public class ElytraFinderScreen extends Screen {
 
             graphics.text(
                     this.font,
-                    "ENDSCHIFF / STATUS",
+                    ElytraFinderLanguage.text("screen.results"),
                     innerX,
                     panelY + 140,
                     0xFFFFFFFF,
