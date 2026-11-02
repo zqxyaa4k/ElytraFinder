@@ -1,6 +1,8 @@
 
 package de.elytrafinder.client.gui;
 
+import de.elytrafinder.client.ElytraFinderLanguage;
+import de.elytrafinder.client.gui.ElytraFinderHud;
 import de.elytrafinder.client.storage.SeedStorage;
 import de.elytrafinder.client.storage.SeedStorage.SavedSeed;
 
@@ -36,7 +38,7 @@ public class SavedSeedsScreen extends Screen {
             int page,
             String statusMessage
     ) {
-        super(Component.literal("Gespeicherte Seeds"));
+        super(Component.literal(ElytraFinderLanguage.text("title.saved")));
 
         this.parent = parent;
         this.page = page;
@@ -82,7 +84,7 @@ public class SavedSeedsScreen extends Screen {
             // Seed laden
             this.addRenderableWidget(
                     Button.builder(
-                            Component.literal("Laden"),
+                            Component.literal(ElytraFinderLanguage.text("button.load")),
                             button -> loadSeed(saved)
                     ).bounds(
                             panelX + 198,
@@ -95,7 +97,7 @@ public class SavedSeedsScreen extends Screen {
             // Seed löschen
             this.addRenderableWidget(
                     Button.builder(
-                            Component.literal("Löschen"),
+                            Component.literal(ElytraFinderLanguage.text("button.delete")),
                             button -> deleteSeed(saved)
                     ).bounds(
                             panelX + 248,
@@ -136,10 +138,35 @@ public class SavedSeedsScreen extends Screen {
 
         this.addRenderableWidget(nextButton);
 
+        // Language selector
+        this.addRenderableWidget(
+                Button.builder(
+                        Component.literal(ElytraFinderLanguage.switchLabel()),
+                        button -> {
+                            ElytraFinderLanguage.toggle();
+                            ElytraFinderHud.onLanguageChanged();
+                            ElytraFinderScreen translatedParent =
+                                    parent.recreateForLanguageChange();
+                            Minecraft.getInstance().gui.setScreen(
+                                    new SavedSeedsScreen(
+                                            translatedParent,
+                                            page,
+                                            ElytraFinderLanguage.text("status.language_changed")
+                                    )
+                            );
+                        }
+                ).bounds(
+                        panelX + panelWidth - 48,
+                        panelY + 4,
+                        36,
+                        15
+                ).build()
+        );
+
         // Zurück zum ElytraFinder
         this.addRenderableWidget(
                 Button.builder(
-                        Component.literal("Zurück zum Finder"),
+                        Component.literal(ElytraFinderLanguage.text("button.back")),
                         button -> Minecraft.getInstance().gui.setScreen(parent)
                 ).bounds(
                         (this.width - 140) / 2,
@@ -186,7 +213,7 @@ public class SavedSeedsScreen extends Screen {
                     new SavedSeedsScreen(
                             parent,
                             page,
-                            "Seed gelöscht."
+                            ElytraFinderLanguage.text("status.seed_deleted")
                     )
             );
 
@@ -198,7 +225,7 @@ public class SavedSeedsScreen extends Screen {
                     new SavedSeedsScreen(
                             parent,
                             page,
-                            "Löschen fehlgeschlagen."
+                            ElytraFinderLanguage.text("status.delete_failed")
                     )
             );
         }
@@ -263,7 +290,7 @@ public class SavedSeedsScreen extends Screen {
         // Überschrift
         drawCentered(
                 graphics,
-                "MEINE SEEDS",
+                ElytraFinderLanguage.text("screen.my_seeds"),
                 panelY + 9,
                 0xFFFFFFFF
         );
@@ -271,7 +298,7 @@ public class SavedSeedsScreen extends Screen {
         // Untertitel
         drawCentered(
                 graphics,
-                "Gespeicherte Welten",
+                ElytraFinderLanguage.text("screen.saved_worlds"),
                 panelY + 24,
                 0xFFB7C5D6
         );
@@ -292,7 +319,7 @@ public class SavedSeedsScreen extends Screen {
 
             drawCentered(
                     graphics,
-                    "Noch keine Seeds gespeichert.",
+                    ElytraFinderLanguage.text("screen.no_saved_seeds"),
                     panelY + 105,
                     0xFFB7C5D6
             );
@@ -343,7 +370,7 @@ public class SavedSeedsScreen extends Screen {
         // Seitenanzeige
         drawCentered(
                 graphics,
-                "Seite " + (page + 1) + " von " + getTotalPages(),
+                ElytraFinderLanguage.text("screen.page", page + 1, getTotalPages()),
                 panelY + 168,
                 0xFF8899AA
         );
