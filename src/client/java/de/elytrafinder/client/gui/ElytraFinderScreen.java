@@ -688,6 +688,17 @@ public class ElytraFinderScreen extends Screen {
         };
     }
 
+    public ElytraFinderScreen recreateForLanguageChange() {
+        String seed = seedField == null ? initialSeed : seedField.getValue();
+        String seedName = seedNameField == null ? initialSeedName : seedNameField.getValue();
+        return new ElytraFinderScreen(
+                searchService,
+                seed,
+                seedName,
+                true
+        );
+    }
+
     private int getStatusColor(int index) {
 
         if (index >= elytraStatuses.size()) {
