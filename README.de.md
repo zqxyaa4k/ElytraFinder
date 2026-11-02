@@ -16,7 +16,7 @@ Die JAR eines normalen Entwicklungs-Builds findest du im Repository unter **Acti
 
 ## Sprachauswahl
 
-ElytraFinder ist auf **Deutsch und Englisch** verfügbar. Über die Schaltfläche **DE / EN** im Finder-Hauptfenster kannst du die Sprache wechseln. Deine Auswahl wird lokal gespeichert und auch für HUD und gespeicherte Seeds verwendet. Beim ersten Start wird die Systemsprache übernommen, sofern Deutsch oder Englisch eingestellt ist; andernfalls wird Englisch verwendet.
+Beim ersten Öffnen fragt ElytraFinder dich, ob du **Deutsch** oder **English** verwenden möchtest. Deine Auswahl wird lokal gespeichert und gilt für Hauptfenster, HUD und gespeicherte Seeds. Über die Schaltfläche **DE / EN** im Finder-Menü kannst du die Sprache jederzeit wechseln.
 
 ## Funktionen
 
