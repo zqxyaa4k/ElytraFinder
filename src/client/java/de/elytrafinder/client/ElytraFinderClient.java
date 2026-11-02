@@ -3,6 +3,8 @@ package de.elytrafinder.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
+import de.elytrafinder.client.ElytraFinderLanguage;
+import de.elytrafinder.client.gui.ElytraFinderLanguageScreen;
 import de.elytrafinder.client.gui.ElytraFinderScreen;
 import de.elytrafinder.client.gui.ElytraFinderHud;
 import de.elytrafinder.client.worldgen.EndCitySearchService;
@@ -58,9 +60,15 @@ public class ElytraFinderClient implements ClientModInitializer {
                     continue;
                 }
 
-                client.gui.setScreen(
-                        new ElytraFinderScreen(SEARCH_SERVICE)
-                );
+                if (ElytraFinderLanguage.hasSavedLanguage()) {
+                    client.gui.setScreen(
+                            new ElytraFinderScreen(SEARCH_SERVICE)
+                    );
+                } else {
+                    client.gui.setScreen(
+                            new ElytraFinderLanguageScreen(SEARCH_SERVICE)
+                    );
+                }
             }
         });
 
