@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and publish JAR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: microsoft
+          java-version: '25'
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Build mod
+        run: ./gradlew --no-daemon clean build
+
+      - name: Prepare release JAR
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t jars < <(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' | sort)
+          if [ "${#jars[@]}" -ne 1 ]; then
+            echo "Expected exactly one distributable mod JAR, found ${#jars[@]}." >&2
+            printf '%s\\n' "${jars[@]}" >&2
+            echo "Contents of build/libs:" >&2
+            ls -lah build/libs >&2 || true
+            exit 1
+          fi
+          mkdir -p dist
+          cp "${jars[0]}" "dist/ElytraFinder-${GITHUB_REF_NAME}.jar"
+          ls -lah dist
+
+      - name: Upload JAR to workflow artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ElytraFinder-${{ github.ref_name }}
+          path: dist/*.jar
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release with downloadable JAR
+        uses: softprops/action-gh-release@v3
+        with:
+          name: ElytraFinder ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: dist/*.jar
