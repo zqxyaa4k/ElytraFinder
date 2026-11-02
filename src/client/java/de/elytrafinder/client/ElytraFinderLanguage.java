@@ -134,6 +134,33 @@ public final class ElytraFinderLanguage {
     private ElytraFinderLanguage() {
     }
 
+    public static boolean hasSavedLanguage() {
+        try {
+            if (!Files.exists(LANGUAGE_FILE)) {
+                return false;
+            }
+
+            String saved = Files.readString(
+                    LANGUAGE_FILE,
+                    StandardCharsets.UTF_8
+            ).trim().toLowerCase(Locale.ROOT);
+
+            return "de".equals(saved) || "en".equals(saved);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void setLanguage(String selectedLanguage) {
+        if (!"de".equals(selectedLanguage) && !"en".equals(selectedLanguage)) {
+            throw new IllegalArgumentException("Language must be 'de' or 'en'.");
+        }
+
+        language = selectedLanguage;
+        saveLanguage();
+    }
+
     public static boolean isGerman() {
         return "de".equals(language);
     }
