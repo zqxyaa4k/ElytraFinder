@@ -14,6 +14,10 @@ Each GitHub Release contains the ready-to-install mod JAR. You do not need to co
 
 To get the JAR from a normal development build, open the repository's **Actions** tab, select the latest successful **Build** run, and download the artifact whose name starts with `ElytraFinder-JAR-`.
 
+## Language selection
+
+ElytraFinder is available in **English and German**. Use the **DE / EN** button in the main Finder screen to switch languages. Your choice is saved locally and is also used by the HUD and saved-seeds screen. On first launch, the system language is used when supported; otherwise English is selected.
+
 ## Features
 
 - Finds End Cities with ships around the player's current X/Z position in the End.
