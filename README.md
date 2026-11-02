@@ -16,7 +16,7 @@ To get the JAR from a normal development build, open the repository's **Actions*
 
 ## Language selection
 
-ElytraFinder is available in **English and German**. Use the **DE / EN** button in the main Finder screen to switch languages. Your choice is saved locally and is also used by the HUD and saved-seeds screen. On first launch, the system language is used when supported; otherwise English is selected.
+On first launch, ElytraFinder asks you to choose **Deutsch** or **English**. Your choice is saved locally and is used by the main screen, HUD and saved-seeds screen. You can switch languages at any time with the **DE / EN** button in the Finder screen.
 
 ## Features
 
