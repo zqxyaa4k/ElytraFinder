@@ -14,6 +14,10 @@ Jedes GitHub-Release enthält die fertige, direkt installierbare Mod-JAR. Du mus
 
 Die JAR eines normalen Entwicklungs-Builds findest du im Repository unter **Actions**: Öffne den neuesten erfolgreichen **Build**-Durchlauf und lade das Artefakt herunter, dessen Name mit `ElytraFinder-JAR-` beginnt.
 
+## Sprachauswahl
+
+ElytraFinder ist auf **Deutsch und Englisch** verfügbar. Über die Schaltfläche **DE / EN** im Finder-Hauptfenster kannst du die Sprache wechseln. Deine Auswahl wird lokal gespeichert und auch für HUD und gespeicherte Seeds verwendet. Beim ersten Start wird die Systemsprache übernommen, sofern Deutsch oder Englisch eingestellt ist; andernfalls wird Englisch verwendet.
+
 ## Funktionen
 
 - Sucht Endstädte mit Schiffen rund um die aktuelle X/Z-Position im Ende.
