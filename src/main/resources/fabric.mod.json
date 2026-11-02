@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "elytrafinder",
+  "version": "${version}",
+  "name": "ElytraFinder",
+  "description": "Find nearby End Cities with ships from your current position, track Elytra item-frame status, save world seeds and use a live HUD.",
+  "icon": "assets/elytrafinder/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "de.elytrafinder.ElytraFinder"
+    ],
+    "client": [
+      "de.elytrafinder.client.ElytraFinderClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "authors": [
+    "zqxyaa4k"
+  ]
+}
