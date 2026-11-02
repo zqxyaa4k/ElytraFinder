@@ -1,5 +1,6 @@
 package de.elytrafinder.client.gui;
 
+import de.elytrafinder.client.ElytraFinderLanguage;
 import de.elytrafinder.client.storage.ElytraStatusStorage;
 import de.elytrafinder.client.storage.ElytraStatusStorage.Status;
 
@@ -37,8 +38,12 @@ public final class ElytraFinderHud {
     private static final int MAX_VISIBLE_RESULTS = 5;
     private static final float HUD_SCALE = 0.85f;
 
-    private static final NumberFormat BLOCK_FORMAT =
-            NumberFormat.getIntegerInstance(Locale.GERMANY);
+    private static String formatBlocks(int blocks) {
+        Locale locale = ElytraFinderLanguage.isGerman()
+                ? Locale.GERMANY
+                : Locale.US;
+        return NumberFormat.getIntegerInstance(locale).format(blocks);
+    }
 
     // Reihenfolge im Uhrzeigersinn, beginnend mit der Blickrichtung.
     private static final String[] DIRECTION_ARROWS = {
@@ -51,7 +56,9 @@ public final class ElytraFinderHud {
 
     private static boolean searching;
 
-    private static String searchMessage = "Noch keine Suche.";
+    private static boolean hasSearched;
+
+    private static String searchMessage = ElytraFinderLanguage.text("hud.no_search");
 
     /*
      * allResults contains the larger search result pool.
@@ -116,7 +123,8 @@ public final class ElytraFinderHud {
 
         activeSeed = seed;
         searching = true;
-        searchMessage = "Suche läuft ...";
+        hasSearched = true;
+        searchMessage = ElytraFinderLanguage.text("hud.searching");
 
         allResults = List.of();
         results = List.of();
@@ -173,13 +181,25 @@ public final class ElytraFinderHud {
         }
 
         searchMessage = allResults.isEmpty()
-                ? "Keine Endschiffe gefunden."
-                : allResults.size() + " Endschiffe gefunden.";
+                ? ElytraFinderLanguage.text("hud.no_results")
+                : ElytraFinderLanguage.text("hud.next", allResults.size());
     }
 
     /**
      * Suchfehler übernehmen.
      */
+    public static void onLanguageChanged() {
+        if (searching) {
+            searchMessage = ElytraFinderLanguage.text("hud.searching");
+        } else if (!hasSearched) {
+            searchMessage = ElytraFinderLanguage.text("hud.no_search");
+        } else if (allResults.isEmpty()) {
+            searchMessage = ElytraFinderLanguage.text("hud.no_results");
+        } else {
+            searchMessage = ElytraFinderLanguage.text("hud.next", allResults.size());
+        }
+    }
+
     public static void setSearchError(String message) {
 
         searching = false;
@@ -416,7 +436,7 @@ public final class ElytraFinderHud {
 
         if (searching) {
 
-            lines.add("Suche läuft ...");
+            lines.add(ElytraFinderLanguage.text("hud.searching"));
             colors.add(0xFFFFFFFF);
 
         } else if (results.isEmpty()) {
@@ -426,7 +446,7 @@ public final class ElytraFinderHud {
 
         } else {
 
-            lines.add("NÄCHSTE " + results.size() + " ENDSCHIFFE");
+            lines.add(ElytraFinderLanguage.text("hud.next", results.size()));
             colors.add(0xFFB7C5D6);
 
             for (int i = 0; i < results.size(); i++) {
@@ -440,9 +460,10 @@ public final class ElytraFinderHud {
                 String line =
                         String.format(
                                 Locale.ROOT,
-                                "%02d  %s Blöcke  %s",
+                                "%02d  %s %s  %s",
                                 i + 1,
-                                BLOCK_FORMAT.format(result.distanceBlocks()),
+                                formatBlocks(result.distanceBlocks()),
+                                ElytraFinderLanguage.text("hud.blocks"),
                                 getShortStatusText(status)
                         );
 
@@ -575,8 +596,8 @@ public final class ElytraFinderHud {
         return switch (status) {
 
             case ELYTRA_PRESENT -> "ELYTRA";
-            case FRAME_WITHOUT_ELYTRA -> "LEER";
-            case FRAME_REMOVED -> "WEG";
+            case FRAME_WITHOUT_ELYTRA -> ElytraFinderLanguage.text("hud.empty");
+            case FRAME_REMOVED -> ElytraFinderLanguage.text("hud.frame_removed");
             case UNKNOWN -> "?";
         };
     }
