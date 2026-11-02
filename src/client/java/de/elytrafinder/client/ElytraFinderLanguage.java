@@ -19,6 +19,10 @@ public final class ElytraFinderLanguage {
 
     private static final Map<String, String> DE = Map.ofEntries(
             Map.entry("title.saved", "Gespeicherte Seeds"),
+            Map.entry("language.choose_title", "Sprache auswählen"),
+            Map.entry("language.choose_subtitle", "Wähle deine Sprache für ElytraFinder."),
+            Map.entry("language.german", "Deutsch"),
+            Map.entry("language.english", "English"),
             Map.entry("button.search", "Suchen"),
             Map.entry("button.save", "Speichern"),
             Map.entry("button.seeds", "Seeds"),
@@ -75,6 +79,10 @@ public final class ElytraFinderLanguage {
 
     private static final Map<String, String> EN = Map.ofEntries(
             Map.entry("title.saved", "Saved Seeds"),
+            Map.entry("language.choose_title", "Choose your language"),
+            Map.entry("language.choose_subtitle", "Select your language for ElytraFinder."),
+            Map.entry("language.german", "Deutsch"),
+            Map.entry("language.english", "English"),
             Map.entry("button.search", "Search"),
             Map.entry("button.save", "Save"),
             Map.entry("button.seeds", "Seeds"),
